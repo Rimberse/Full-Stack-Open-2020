@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// Header component
 const Header = props => {
   return (
     <>
@@ -9,22 +10,29 @@ const Header = props => {
   );
 }
 
-const Content = props => {
+// Part component
+const Part = props => {
   return (
     <>
       <p>
-        {props.part1Name} {props.exercises1Count}
-      </p>
-      <p>
-        {props.part2Name} {props.exercises2Count}
-      </p>
-      <p>
-        {props.part3Name} {props.exercises3Count}
+        {props.partName} {props.exercisesCount}
       </p>
     </>
   );
 }
 
+// Content component
+const Content = props => {
+  return (
+    <>
+      <Part partName={props.part1Name} exercisesCount={props.exercises1Count} />
+      <Part partName={props.part2Name} exercisesCount={props.exercises2Count} />
+      <Part partName={props.part3Name} exercisesCount={props.exercises3Count} />
+    </>
+  );
+}
+
+// Total component
 const Total = props => {
   return (
     <>
@@ -33,6 +41,8 @@ const Total = props => {
   );
 }
 
+// Main component
+// Parts could eventually be stores in an array, but i didn't really bother with the code optimization
 const App = () => {
   const course = 'Half Stack application development'
   const part1 = 'Fundamentals of React'
