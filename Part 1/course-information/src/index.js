@@ -15,19 +15,18 @@ const Part = props => {
   return (
     <>
       <p>
-        {props.partName} {props.exercisesCount}
+        {props.partName} {props.exerciseCount}
       </p>
     </>
   );
 }
 
 // Content component
+// forEach won't work because it doesn't return anything, so .map function is the only choice
 const Content = props => {
   return (
     <>
-      <Part partName={props.part1Name} exercisesCount={props.exercises1Count} />
-      <Part partName={props.part2Name} exercisesCount={props.exercises2Count} />
-      <Part partName={props.part3Name} exercisesCount={props.exercises3Count} />
+      {props.parts.map(part => <Part partName={part.name} exerciseCount={part.exercises} />)}
     </>
   );
 }
@@ -36,32 +35,34 @@ const Content = props => {
 const Total = props => {
   return (
     <>
-      <p>Number of exercises {props.exercises1Count + props.exercises2Count + props.exercises3Count}</p>
+      <p>Number of exercises {props.parts.reduce((acc, part) => acc + part.exercises, 0)}</p>
     </>
   );
 }
 
 // Main component
 const App = () => {
-  const course = 'Half Stack application development'
-  const part1 = {
-    name: 'Fundamentals of React',
-    exercises: 10
-  };
-  const part2 = {
-    name: 'Using props to pass data',
-    exercises: 7
-  };
-  const part3 = {
-    name: 'State of a component',
-    exercises: 14
-  };
+  const course = 'Half Stack application development';
+  const parts = [
+    {
+      name: 'Fundamentals of React',
+      exercises: 10
+    },
+    {
+      name: 'Using props to pass data',
+      exercises: 7
+    },
+    {
+      name: 'State of a component',
+      exercises: 14
+    }
+  ];
 
   return (
     <div>
       <Header courseName={course} />
-      <Content part1Name={part1.name} part2Name={part2.name} part3Name={part3.name} exercises1Count={part1.exercises} exercises2Count={part2.exercises} exercises3Count={part3.exercises} />
-      <Total exercises1Count={part1.exercises} exercises2Count={part2.exercises} exercises3Count={part3.exercises} />
+      <Content parts={parts} />
+      <Total parts={parts} />
     </div>
   );
 }
