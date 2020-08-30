@@ -23,10 +23,11 @@ const Part = props => {
 
 // Content component
 // forEach won't work because it doesn't return anything, so .map function is the only choice
+// each element should be provided with a key in React (key=...)
 const Content = props => {
   return (
     <>
-      {props.parts.map(part => <Part partName={part.name} exerciseCount={part.exercises} />)}
+      {props.parts.map((part, i) => <Part partName={part.name} exerciseCount={part.exercises} key={i} />)}
     </>
   );
 }
@@ -42,27 +43,29 @@ const Total = props => {
 
 // Main component
 const App = () => {
-  const course = 'Half Stack application development';
-  const parts = [
-    {
-      name: 'Fundamentals of React',
-      exercises: 10
-    },
-    {
-      name: 'Using props to pass data',
-      exercises: 7
-    },
-    {
-      name: 'State of a component',
-      exercises: 14
-    }
-  ];
+  const course = {
+    name: 'Half Stack application development',
+    parts: [
+      {
+        name: 'Fundamentals of React',
+        exercises: 10
+      },
+      {
+        name: 'Using props to pass data',
+        exercises: 7
+      },
+      {
+        name: 'State of a component',
+        exercises: 14
+      }
+    ]
+  };
 
   return (
     <div>
-      <Header courseName={course} />
-      <Content parts={parts} />
-      <Total parts={parts} />
+      <Header courseName={course.name} />
+      <Content parts={course.parts} />
+      <Total parts={course.parts} />
     </div>
   );
 }
