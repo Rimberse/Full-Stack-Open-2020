@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import personService from './services/persons';
 import './App.css';
 
 // ex. 2.6
@@ -11,28 +11,45 @@ function App() {
 
   // ex. 2.10
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
+    personService.read()
       .then(response => {
-        setPersons(response.data);
+        setPersons(response);
       });
   }, []);
 
-  console.log(persons);
-
   const addPerson = event => {
     event.preventDefault();
+
+    if (newName.length === 0 || newNumber.length === 0) {
+      return;
+    }
+    
     // ex. 2.7
     // Convert names of persons to lowercase, then verify if the persons array contains a person with the inputted name (also lowercased)
     // Alert if the name already associated to one person and don't add it to the phonebook
     if (persons.map(person => person.name.toLowerCase()).indexOf(newName.toLowerCase().trim()) !== -1) {
-      alert(`${newName} is already added to phonebook`);
-      return;
-    }
+      // ex. 2.18
+      if (persons.map(person => person.number).indexOf(newNumber.trim()) === -1) {
 
-    if (persons.map(person => person.number).indexOf(newNumber.trim()) !== -1) {
-      alert(`${newNumber} is already added to the phonebook`);
-      return;
+        if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+          const existingPerson = persons.find(existingPerson => existingPerson.name === newName);
+          const newPerson = { ...existingPerson, number: newNumber };
+          personService.update(existingPerson.id, newPerson)
+            .then(updatedPerson => {
+              setPersons(persons.map(person => person.id !== existingPerson.id ? person : updatedPerson));
+              setNewName('');
+              setNewNumber('');
+            })
+            .catch(error => {
+              alert(`${newName}'s phone number wasn't updated`);
+            });
+        }
+        return;
+
+      } else {
+        alert(`${newName} is already added to phonebook`);
+        return;
+      }
     }
 
     // Create new Person object
@@ -42,9 +59,30 @@ function App() {
     };
 
     // Concatenate the existing array with then new entry, without modifying an old orray (cf: React state should be modified)
-    setPersons(persons.concat(newPerson));
+    personService.create(newPerson)
+      .then(newPerson => {
+        setPersons(persons.concat(newPerson));
+      })
+      .catch(error => {
+        alert(`${newPerson.name} ${newPerson.number} can't be added`);
+      });
+
     setNewName('');
     setNewNumber('');
+  };
+
+  const deletePerson = name => {
+    if (window.confirm(`Delete ${name} ?`)) {
+      const id = persons.find(person => person.name === name).id;
+      
+      personService.deleteEntry(id)
+        .then(response => {
+          setPersons(persons.filter(person => person.id !== id));
+        })
+        .catch(error => {
+          alert(`${name} is already deleted`);
+        });
+    }
   };
 
   // Helper method used inside of a filter method, which indicates if there is a match between names and a search value
@@ -74,7 +112,7 @@ function App() {
       <h2>Add a new</h2>
       <PersonForm handleSubmit={addPerson} nameValue={newName} numberValue={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />
       <h2>Numbers</h2>
-      <Persons persons={search.length === 0 ? persons : persons.filter(person => checkMatch(person))} />
+      <Persons persons={search.length === 0 ? persons : persons.filter(person => checkMatch(person))} handleClick={deletePerson} />
       {/* {search.length === 0 ? persons.map(person => <div key={person.name}>{person.name} {person.number}</div>)
       : persons.filter(person => checkMatch(person)).map(person => <div key={person.name}>{person.name} {person.number}</div>)} */}
     </div>
@@ -92,8 +130,8 @@ const PersonForm = ({ handleSubmit, nameValue, numberValue, handleNameChange, ha
   </form>
 );
 
-const Persons = ({ persons }) => (<>{persons.map(person => <Person key={person.name} name={person.name} number={person.number} />)}</>);
+const Persons = ({ persons, handleClick }) => (<>{persons.map(person => <Person key={person.name} name={person.name} number={person.number} handleClick={handleClick} />)}</>);
 
-const Person = props => <div>{props.name} {props.number}</div>
+const Person = props => <div>{props.name} {props.number} <button onClick={() => props.handleClick(props.name)}>Delete</button></div>;
 
 export default App;
