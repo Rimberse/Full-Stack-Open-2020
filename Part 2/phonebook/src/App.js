@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import personService from './services/persons';
+import Notification from './components/Notification';
 import './App.css';
 
 // ex. 2.6
@@ -8,6 +9,7 @@ function App() {
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [search, setSearch] = useState('');
+  const [message, setMessage] = useState(null);
 
   // ex. 2.10
   useEffect(() => {
@@ -23,11 +25,12 @@ function App() {
     if (newName.length === 0 || newNumber.length === 0) {
       return;
     }
-    
+
     // ex. 2.7
     // Convert names of persons to lowercase, then verify if the persons array contains a person with the inputted name (also lowercased)
     // Alert if the name already associated to one person and don't add it to the phonebook
     if (persons.map(person => person.name.toLowerCase()).indexOf(newName.toLowerCase().trim()) !== -1) {
+      console.log(persons);
       // ex. 2.18
       if (persons.map(person => person.number).indexOf(newNumber.trim()) === -1) {
 
@@ -39,15 +42,21 @@ function App() {
               setPersons(persons.map(person => person.id !== existingPerson.id ? person : updatedPerson));
               setNewName('');
               setNewNumber('');
+              setMessage(`${updatedPerson.name}'s number is changed to: ${updatedPerson.number}`);
+              setTimeout(() => setMessage(null), 2500);
             })
             .catch(error => {
-              alert(`${newName}'s phone number wasn't updated`);
+              // ex. 2.20
+              setMessage(`Information of ${existingPerson.name} has already been removed from server`);
+              setTimeout(() => setMessage(null), 2500);
+              setPersons(persons.filter(person => person.id !== existingPerson.id));
             });
         }
         return;
 
       } else {
-        alert(`${newName} is already added to phonebook`);
+        setMessage(`${newName} is already added to phonebook`);
+        setTimeout(() => setMessage(null), 2500);
         return;
       }
     }
@@ -62,13 +71,15 @@ function App() {
     personService.create(newPerson)
       .then(newPerson => {
         setPersons(persons.concat(newPerson));
+        setNewName('');
+        setNewNumber('');
+        setMessage(`Added ${newPerson.name}`);
+        setTimeout(() => setMessage(null), 2500);
       })
       .catch(error => {
-        alert(`${newPerson.name} ${newPerson.number} can't be added`);
+        setMessage(`${newPerson.name} ${newPerson.number} can't be added`);
+        setTimeout(() => setMessage(null), 2500);
       });
-
-    setNewName('');
-    setNewNumber('');
   };
 
   const deletePerson = name => {
@@ -78,9 +89,13 @@ function App() {
       personService.deleteEntry(id)
         .then(response => {
           setPersons(persons.filter(person => person.id !== id));
+          setMessage(`${name} has been deleted`);
+          setTimeout(() => setMessage(null), 2500);
         })
         .catch(error => {
-          alert(`${name} is already deleted`);
+          setMessage(`Information of ${name} has already been removed from server`);
+          setTimeout(() => setMessage(null), 2500);
+          setPersons(persons.filter(person => person.id !== id));
         });
     }
   };
@@ -108,6 +123,7 @@ function App() {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter value={search} handleChange={handleSearchChange} />
       <h2>Add a new</h2>
       <PersonForm handleSubmit={addPerson} nameValue={newName} numberValue={newNumber} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange} />

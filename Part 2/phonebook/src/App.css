@@ -41,3 +41,15 @@ div {
   margin: 0 auto;
   /* text-align: center; */
 }
+
+.notification {
+  background: ghostwhite;
+  color: green;
+  border: 2px solid green;
+  border-radius: 12.5px;
+  padding: 7.5px;
+  margin-bottom: 10px;
+  font-size: 18px;
+  text-align: center;
+  width: 350px;
+}
