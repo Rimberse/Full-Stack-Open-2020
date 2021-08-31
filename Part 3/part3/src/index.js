@@ -1,7 +1,9 @@
 const express = require('express');
 const nodemon = require('nodemon');
+const cors = require('cors');
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const requestLogger = (request, response, next) => {
     console.log('Method:', request.method);
@@ -84,7 +86,14 @@ const generateId = () => {
     return maxId + 1;
 };
 
-const PORT = 3001;
+// sends a json response if no associate route is found e.g: (/something/somewhere)
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndpoint);
+
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

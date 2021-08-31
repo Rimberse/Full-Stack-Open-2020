@@ -1,7 +1,21 @@
 const express = require('express');
 const nodemon = require('nodemon');
+const morgan = require('morgan');
 const app = express();
 app.use(express.json());
+
+// ex. 3.8
+morgan.token('newPerson', (request, response) => JSON.stringify(request.body));
+// ex. 3.7
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :newPerson'));
+
+// Brute force way
+/*const personLogger = (request, response, next) => {
+    console.log(request.body);
+    next();
+}
+
+app.use(personLogger);*/
 
 let persons = [
     { 
