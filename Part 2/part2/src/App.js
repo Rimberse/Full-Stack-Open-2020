@@ -4,6 +4,7 @@ import Note from './components/Note';
 import noteService from './services/notes';
 import Notification from './components/Notification';
 import Footer from './components/Footer';
+import axios from 'axios';
 
 const App = () => {
   const [notes, setNotes] = useState([]);
@@ -12,6 +13,11 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState('some error happened...');
 
   useEffect(() => {
+    // axios
+    //   .get('http://localhost:3001/api/notes')
+    //   .then(res => {
+    //     setNotes(res.data)
+    //   })
     noteService
       .getAll()
       .then(initialNotes => {
