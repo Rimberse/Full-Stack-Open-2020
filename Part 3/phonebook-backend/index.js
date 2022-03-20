@@ -1,8 +1,12 @@
 const express = require('express');
-const nodemon = require('nodemon');
+// const nodemon = require('nodemon');
 const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
 app.use(express.json());
+app.use(cors());
+// ex. 3.11
+app.use(express.static('build'));
 
 // ex. 3.8
 morgan.token('newPerson', (request, response) => JSON.stringify(request.body));
@@ -117,7 +121,8 @@ app.post('/api/persons', (request, response) => {
     response.status(200).json(person);
 });
 
-const PORT = 3001;
+// ex. 3.10
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

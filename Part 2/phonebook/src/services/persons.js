@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// ex. 2.15, 2.16
-const baseUrl = 'http://localhost:3001/persons';
+// ex. 2.15, 2.16, 3.9, 3.11
+const baseUrl = '/api/persons';
 
 const create = newObject => {
     const request = axios.post(baseUrl, newObject);

@@ -1,7 +1,7 @@
-DELETE http://localhost:3001/api/persons/4
+DELETE https://phonebook-fullstack-course.herokuapp.com/api/persons/577546
 
 ###
-POST http://localhost:3001/api/persons
+POST https://phonebook-fullstack-course.herokuapp.com/api/persons
 Content-Type: application/json
 
 {
