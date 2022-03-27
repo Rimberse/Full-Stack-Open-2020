@@ -9,14 +9,15 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf build && cd '../../Part 2/part2/' && npm run build && cp -r build '../../Part 3/part3/'",
     "deploy": "git push heroku main",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && heroku git:remote -a thawing-shelf-91979 && npm run deploy",    
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && heroku git:remote -a thawing-shelf-91979 && npm run deploy",
     "logs:prod": "heroku logs --app thawing-shelf-91979 --tail"
   },
   "author": "Kerim H.",
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^6.2.8"
   },
   "devDependencies": {
     "nodemon": "^2.0.12"
