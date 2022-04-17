@@ -7,6 +7,9 @@ app.use(express.json());
 app.use(cors());
 // ex. 3.11
 app.use(express.static('build'));
+require('dotenv').config({ path: "../.env" });
+
+const Person = require("./models/Person");
 
 // ex. 3.8
 morgan.token('newPerson', (request, response) => JSON.stringify(request.body));
@@ -50,7 +53,9 @@ app.get('/', (request, response) => {
 
 // ex. 3.1
 app.get('/api/persons', (request, response) => {
-    response.json(persons);
+    // response.json(persons);
+    // ex. 3.13
+    Person.find({}).then(people => response.json(people));
 });
 
 // ex. 3.2
@@ -93,32 +98,35 @@ app.post('/api/persons', (request, response) => {
     const body = request.body;
 
     // ex. 3.6
-    if (!body.name || !body.number) {
+    if (body.name == undefined || body.number == undefined) {
         return response.status(400).json({
             error: 'name or number is missing'
         });
     }
 
-    if (persons.find(person => person.name === body.name)) {
-        return response.status(400).json({
-            error: 'name must be unique'
-        });
-    }
+    // if (persons.find(person => person.name === body.name)) {
+    //     return response.status(400).json({
+    //         error: 'name must be unique'
+    //     });
+    // }
 
-    let randN = Math.round(Math.random() * (1000000 - 1) + 1);
+    // let randN = Math.round(Math.random() * (1000000 - 1) + 1);
 
-    while (persons.find(person => person.id === randN)) {
-        randN = Math.round(Math.random() * (1000000 - 1) + 1);
-    }
+    // while (persons.find(person => person.id === randN)) {
+    //     randN = Math.round(Math.random() * (1000000 - 1) + 1);
+    // }
 
-    const person = {
-        id: randN,
+    const person = new Person({
+        // id: randN,
         name: body.name,
         number: body.number
-    };
+    });
 
-    persons = persons.concat(person);
-    response.status(200).json(person);
+    // persons = persons.concat(person);
+    // response.status(200).json(person);
+
+    // ex. 3.14
+    person.save().then(savedPerson => response.json(savedPerson));
 });
 
 // ex. 3.10
