@@ -24,6 +24,16 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :n
 
 app.use(personLogger);*/
 
+// ex. 3.16
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message);
+
+    if (error.name === 'CastError')
+        return response.status(400).send({ error: 'malformatted id' });
+
+    next(error);
+}
+
 let persons = [
     { 
       "id": 1,
@@ -59,38 +69,60 @@ app.get('/api/persons', (request, response) => {
 });
 
 // ex. 3.2
-app.get('/info', (request, response) => {
-    response.send(`
-        <div>
-            <p>Phonebook has info for ${persons.length} people</p>
-            <p>${new Date()}</p>
-        </div>
-    `);
+app.get('/info', (request, response, next) => {
+    // ex. 3.18
+    Person.collection.countDocuments()
+        .then(count => {
+            response.send(`
+                <div>
+                    <p>Phonebook has info for ${count} people</p>
+                    <p>${new Date()}</p>
+                </div>
+            `);
+        })
+        .catch(error => next(error))
 });
 
 // ex. 3.3
-app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    const person = persons.find(person => person.id === id);
+app.get('/api/persons/:id', (request, response, next) => {
+    // const id = Number(request.params.id);
+    // const person = persons.find(person => person.id === id);
     
-    if (person) {
-        response.json(person);
-    } else {
-        response.status(404).end();
-    }
+    // ex. 3.18
+    Person.findById(request.params.id)
+        .then(person => {
+            if (person)
+                response.json(person);
+            else
+                response.status(404).end();
+        })
+        .catch(error => next(error));
+
+    // if (person) {
+    //     response.json(person);
+    // } else {
+    //     response.status(404).end();
+    // }
 });
 
 // ex. 3.4
-app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id);
-    const person = persons.find(person => person.id === id);
+app.delete('/api/persons/:id', (request, response, next) => {
+    // const id = Number(request.params.id);
+    // const person = persons.find(person => person.id === id);
+
+    // ex. 3.15
+    Person.findByIdAndRemove(request.params.id)
+        .then(result => {
+            response.status(204).end();
+        })
+        .catch(error => next(error));
     
-    if (person) {
-        persons = persons.filter(person => person.id !== id);
-        response.status(204).end();
-    } else {
-        response.status(410).end();
-    }
+    // if (person) {
+    //     persons = persons.filter(person => person.id !== id);
+    //     response.status(204).end();
+    // } else {
+    //     response.status(410).end();
+    // }
 });
 
 // ex. 3.5
@@ -128,6 +160,24 @@ app.post('/api/persons', (request, response) => {
     // ex. 3.14
     person.save().then(savedPerson => response.json(savedPerson));
 });
+
+// ex. 3.17
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body;
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+        .then(updatedPerson => {
+            response.json(updatedPerson);
+        })
+        .catch(error => next(error));
+});
+
+app.use(errorHandler);
 
 // ex. 3.10
 const PORT = process.env.PORT || 3001;
