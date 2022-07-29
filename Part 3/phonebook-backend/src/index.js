@@ -28,8 +28,11 @@ app.use(personLogger);*/
 const errorHandler = (error, request, response, next) => {
     console.error(error.message);
 
-    if (error.name === 'CastError')
+    if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' });
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+    }
 
     next(error);
 }
@@ -126,15 +129,15 @@ app.delete('/api/persons/:id', (request, response, next) => {
 });
 
 // ex. 3.5
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body;
 
     // ex. 3.6
-    if (body.name == undefined || body.number == undefined) {
-        return response.status(400).json({
-            error: 'name or number is missing'
-        });
-    }
+    // if (body.name == undefined || body.number == undefined) {
+    //     return response.status(400).json({
+    //         error: 'name or number is missing'
+    //     });
+    // }
 
     // if (persons.find(person => person.name === body.name)) {
     //     return response.status(400).json({
@@ -148,6 +151,13 @@ app.post('/api/persons', (request, response) => {
     //     randN = Math.round(Math.random() * (1000000 - 1) + 1);
     // }
 
+    if (body.id) {
+        Person.findById(body.id)
+            .then(foundPerson => response.status(409).json({
+                error: 'Person is already present!'
+           }).end());
+    }
+
     const person = new Person({
         // id: randN,
         name: body.name,
@@ -158,7 +168,11 @@ app.post('/api/persons', (request, response) => {
     // response.status(200).json(person);
 
     // ex. 3.14
-    person.save().then(savedPerson => response.json(savedPerson));
+    if (!body.id) {
+        person.save()
+            .then(savedPerson => response.json(savedPerson))
+            .catch(error => next(error));
+    }
 });
 
 // ex. 3.17
@@ -170,7 +184,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         number: body.number
     }
 
-    Person.findByIdAndUpdate(request.params.id, person, {new: true})
+    Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
         .then(updatedPerson => {
             response.json(updatedPerson);
         })
@@ -179,7 +193,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 app.use(errorHandler);
 
-// ex. 3.10
+// ex. 3.10, 3.21
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

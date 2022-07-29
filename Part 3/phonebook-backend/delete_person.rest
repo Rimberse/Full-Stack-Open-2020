@@ -1,2 +1,12 @@
 DELETE http://localhost:3001/api/persons/3
 
+###
+POST http://localhost:3001/api/persons
+Content-Type: application/json
+
+{
+    "name": "dsf",
+    "number": "12-45678914",
+    "id": "62e4329bcd59f2df6b057cc6"
+}
+

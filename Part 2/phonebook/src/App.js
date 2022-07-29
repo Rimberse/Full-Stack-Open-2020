@@ -47,7 +47,8 @@ function App() {
             })
             .catch(error => {
               // ex. 2.20
-              setMessage(`Information of ${existingPerson.name} has already been removed from server`);
+              // setMessage(`Information of ${existingPerson.name} has already been removed from server`);
+              setMessage(error.response.data.error);
               setTimeout(() => setMessage(null), 2500);
               setPersons(persons.filter(person => person.id !== existingPerson.id));
             });
@@ -62,9 +63,12 @@ function App() {
     }
 
     // Create new Person object
+    const person = persons.find(person => person.name === newName);
+
     const newPerson = {
       name: newName,
-      number: newNumber
+      number: newNumber,
+      id: person === undefined ? undefined : person.id
     };
 
     // Concatenate the existing array with then new entry, without modifying an old orray (cf: React state should be modified)
@@ -77,7 +81,8 @@ function App() {
         setTimeout(() => setMessage(null), 2500);
       })
       .catch(error => {
-        setMessage(`${newPerson.name} ${newPerson.number} can't be added`);
+        // setMessage(`${newPerson.name} ${newPerson.number} can't be added`);
+        setMessage(error.response.data.error);
         setTimeout(() => setMessage(null), 2500);
       });
   };
