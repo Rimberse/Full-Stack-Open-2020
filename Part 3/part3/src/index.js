@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.static('build'));
-require('dotenv').config({path: "../.env" });
+require('dotenv').config({ path: '../.env' });
 
 const Note = require('./models/note');
 
@@ -21,13 +21,13 @@ const errorHandler = (error, request, response, next) => {
     console.error(error.message);
 
     if (error.name === 'CastError') {
-        return response.status(400).send({ error: 'malformatted id' })
+        return response.status(400).send({ error: 'malformatted id' });
     } else if (error.name === 'ValidationError') {
-        return response.status(400).json({ error: error.message })
+        return response.status(400).json({ error: error.message });
     }
 
     next(error);
-}
+};
 
 app.use(requestLogger);
 

@@ -7,9 +7,9 @@ app.use(express.json());
 app.use(cors());
 // ex. 3.11
 app.use(express.static('build'));
-require('dotenv').config({ path: "../.env" });
+require('dotenv').config({ path: '../.env' });
 
-const Person = require("./models/Person");
+const Person = require('./models/Person');
 
 // ex. 3.8
 morgan.token('newPerson', (request, response) => JSON.stringify(request.body));
